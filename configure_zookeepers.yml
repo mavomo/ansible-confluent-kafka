@@ -62,3 +62,60 @@
         content: "{{ hostvars[inventory_hostname]['myid'] }}"
         dest: /var/lib/zookeeper/myid
       when: inventory_hostname in groups ['zookeepers']
+
+    - name: Configure Kafka - Setting the brokerID to the appropriate ID on each server
+      ansible.builtin.lineinfile:
+        path: /etc/kafka/server.properties
+        regexp: '^broker.id'
+        line: "broker.id={{ hostvars[inventory_hostname]['myid'] }}"
+      when: inventory_hostname in groups ['brokers']
+
+    - name: Setting the zookeeper.connect value to point to first broker
+      ansible.builtin.lineinfile:
+        path: /etc/kafka/server.properties
+        regexp: '^zookeeper:.connect'
+        line: "zookeeper.connect=zoo1:2181"
+      when: inventory_hostname in groups ['zookeepers']
+
+    ## Start  & Check services for Confluent-Zookeepers
+    - name: Start confluent-zookeeper
+      tags: startconfluentzkpers
+      systemd:
+        name: 'confluent-zookeeper'
+        state: started
+        daemon_reload: true
+        enabled: yes
+      when: inventory_hostname in groups ['zookeepers']
+
+        #- name: Validating if zookeeper is up and listening on port 2181
+        #wait_for:
+        #host: "{{ ansible_host }}"
+        #port: 2181
+        #delay: 10
+        #timeout: 30
+        #state: started
+        #msg: "confluent-zookeeper not seem to be running on {{ansible_host}}"
+        #when: inventory_hostname in groups['zookeepers']
+
+  ## Start & Check Service for Kafka Brokers
+    - name: Start Kafka Brokers
+      tags: startkafkabrokers
+      systemd:
+        name: 'confluent-kafka'
+        state: started
+        daemon_reload: true
+        enabled: yes
+      when: inventory_hostname in groups['brokers']
+
+        #- name: Validating if Kafka is up and listening on port 9092
+        #wait_for:
+        #host: "{{ ansible_host }}"
+        #port: 9092
+        #delay: 10
+        #timeout: 30
+        #state: started
+        #msg: "Kafka brokers do not seem to be running on {{ ansible_host }}"
+        #when: inventory_hostname in groups['brokers']
+
+
+
