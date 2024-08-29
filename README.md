@@ -37,7 +37,7 @@ Well, congrats !
 you can now create a topic :
 > kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 3 --partitions 6 --topic my-topic
 
-Setting up a publish and ...publish messages to that topic
+Setting up a publisher and ...publish messages to that topic
 > kafka-console-producer --broker-list localhost:9092 --topic my-topic
 
 Consume messages from that topic:
