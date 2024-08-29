@@ -1,7 +1,8 @@
 ## Ansible + Confluent Kafka + Zookeeper : Getting started
 
 ####  This is a learning space. Please do not use as-is for more serious purpose
-The public IP's of my server as renewed all the time. I Hope it's OK.
+The public IP's of my server are renewed all the time. I should be fine for me to write them here.
+
 ## Before running the playbook:
  1. Make sure all your remote host recognize your [Ansible Control Node](https://docs.ansible.com/ansible/latest/getting_started/index.html)
 
