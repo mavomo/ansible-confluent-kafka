@@ -32,6 +32,18 @@ The command should return as a response:
      __confluent.support.metrics
 
 ### Where to go from there ?
+
+Well, congrats !
+you can now create a topic :
+> kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 3 --partitions 6 --topic my-topic
+
+Setting up a publish and ...publish messages to that topic
+> kafka-console-producer --broker-list localhost:9092 --topic my-topic
+
+Consume messages from that topic:
+> kafka-console-consumer --bootstrap-server localhost:9092 --topic my-topic --from-beginning
+
+Also,
 - There is a Getting Started tutorial [here](https://developer.confluent.io/quickstart/kafka-local/?session_ref=https://duckduckgo.com/#4-create-a-topic)
 - You can use any tool to want to have a humanly visualization version of your cluster
 - ...
