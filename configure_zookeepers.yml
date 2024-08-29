@@ -1,0 +1,64 @@
+---
+- hosts: zookeepers
+  become: yes
+  tasks:
+    - name: Update /etc/hosts to add mappings IP/hosts name
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        insertafter: '127.0.0.1 localhost'
+        block: |
+          {{ item.ip }} {{ item.name }}
+        marker: "# {mark} Ansible Managed block {{ item.name }}"
+      loop:
+        - { name: zoo1, ip: 172.31.113.109 }
+        - { name: zoo2, ip: 172.31.112.137 }
+        - { name: zoo3, ip: 172.31.114.181 }
+
+    - name: File stats
+      ansible.builtin.stat:
+          path: /etc/kafka/zookeeper.properties
+      register: file_stat
+
+    - name: copy the existing zookeeper property file
+      ansible.builtin.copy:
+        src: /etc/kafka/zookeeper.properties
+        dest: /home/zookeeper.properties.copy
+        remote_src: true
+      when: file_stat.stat.exists
+
+    - name: Delete existing zookeeper.properties
+      ansible.builtin.file:
+          path: /etc/kafka/zookeeper.properties
+          state: absent
+      when: file_stat.stat.exists
+
+    - name: creating an empty zookeeper configuration file
+      ansible.builtin.file:
+        path: /etc/kafka/zookeeper.properties
+        state: touch
+
+    - name: Debug file stat
+      ansible.builtin.debug:
+       msg: "File exists ?: {{ file_stat.stat.exists }}"
+
+    - name: Configure zookeekeepers by editing the zookeepers.properties file
+      ansible.builtin.blockinfile:
+        path: /etc/kafka/zookeeper.properties
+        block: |
+          tickTime=2000
+          dataDir=/var/lib/zookeeper/
+          clientPort=2181
+          initLimit=5
+          syncLimit=2
+          server.1=zoo1:2888:3888
+          server.2=zoo2:2888:3888
+          server.3=zoo3:2888:3888
+          autopurge.snapRetainCount=3
+          autopurge.purgeInterval=24
+      when: file_stat.stat.exists
+
+    - name: Create Zookeeper myid file wuth unique incremental values
+      ansible.builtin.copy:
+        content: "{{ hostvars[inventory_hostname]['myid'] }}"
+        dest: /var/lib/zookeeper/myid
+      when: inventory_hostname in groups ['zookeepers']
