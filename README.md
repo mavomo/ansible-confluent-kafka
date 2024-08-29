@@ -18,11 +18,13 @@ The public IP's of my server are renewed all the time. I should be fine for me t
 
     > /draft/hosts_inventory.ini
 
- 3. Play the inventory and the playbook all-together
+## When running the ansible-playbook command
+
+ 1. Play the inventory and the playbook all-together
     Pay attention, I need a password and I took a shortcut here:
  > ansible-playbook -i hosts.yml install_kafka.yml configure_zookeepers.yml --extra-vars ansible_become_pass=your-password
 
-4. Everything should work fine on all stage, you can log manually to any broker and type the command :
+2. Everything should work fine on all stage, you can log manually to any broker and type the command :
    >  kafka-topics --list --bootstrap-server localhost:9092
 
 The command should return as a response:
